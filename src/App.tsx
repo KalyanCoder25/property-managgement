@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { AuthService } from './utils/auth';
+import SignInForm from './components/SignInForm';
+import SignUpForm from './components/SignUpForm';
 import { Building2, Users, CreditCard, MessageSquare, Settings, Plus, Search, Filter, Home, Calendar, DollarSign, TrendingUp, Bell } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import PropertiesView from './components/PropertiesView';
@@ -7,14 +10,60 @@ import PaymentsView from './components/PaymentsView';
 import MessagesView from './components/MessagesView';
 import PropertyForm from './components/PropertyForm';
 import TenantForm from './components/TenantForm';
+import { mockProperties, mockTenants } from './data/mockData';
 
 type View = 'dashboard' | 'properties' | 'tenants' | 'payments' | 'messages' | 'settings';
 type Modal = 'property' | 'tenant' | null;
+type AuthView = 'signin' | 'signup';
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authView, setAuthView] = useState<AuthView>('signin');
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [activeModal, setActiveModal] = useState<Modal>(null);
   const [searchQuery, setSearchQuery] = useState('');
+
+  const authService = AuthService.getInstance();
+
+  // Check if user is already authenticated
+  React.useEffect(() => {
+    if (authService.isAuthenticated()) {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  const handleSignIn = () => {
+    setIsAuthenticated(true);
+  };
+
+  const handleSignUp = () => {
+    setIsAuthenticated(true);
+  };
+
+  const handleSignOut = () => {
+    authService.signOut();
+    setIsAuthenticated(false);
+    setCurrentView('dashboard');
+  };
+
+  // Show authentication forms if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <>
+        {authView === 'signin' ? (
+          <SignInForm 
+            onSignIn={handleSignIn}
+            onSwitchToSignUp={() => setAuthView('signup')}
+          />
+        ) : (
+          <SignUpForm 
+            onSignUp={handleSignUp}
+            onSwitchToSignIn={() => setAuthView('signin')}
+          />
+        )}
+      </>
+    );
+  }
 
   const navigationItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Home },
@@ -30,9 +79,9 @@ function App() {
       case 'dashboard':
         return <Dashboard />;
       case 'properties':
-        return <PropertiesView searchQuery={searchQuery} onAddProperty={() => setActiveModal('property')} />;
+        return <PropertiesView searchQuery={searchQuery} onAddProperty={() => setActiveModal('property')} properties={mockProperties} />;
       case 'tenants':
-        return <TenantsView searchQuery={searchQuery} onAddTenant={() => setActiveModal('tenant')} />;
+        return <TenantsView searchQuery={searchQuery} onAddTenant={() => setActiveModal('tenant')} tenants={mockTenants} />;
       case 'payments':
         return <PaymentsView searchQuery={searchQuery} />;
       case 'messages':
@@ -100,9 +149,17 @@ function App() {
           <div className="flex items-center space-x-3 px-4 py-3">
             <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
             <div>
-              <p className="text-sm font-medium text-gray-900">John Smith</p>
+              <p className="text-sm font-medium text-gray-900">
+                {authService.getCurrentUser()?.firstName} {authService.getCurrentUser()?.lastName}
+              </p>
               <p className="text-xs text-gray-500">Property Manager</p>
             </div>
+            <button
+              onClick={handleSignOut}
+              className="ml-auto text-xs text-gray-500 hover:text-gray-700"
+            >
+              Sign Out
+            </button>
           </div>
         </div>
       </div>

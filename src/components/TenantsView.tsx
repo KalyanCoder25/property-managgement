@@ -1,81 +1,20 @@
 import React from 'react';
 import { Phone, Mail, MapPin, Calendar, DollarSign, User, CreditCard as Edit, MoreVertical } from 'lucide-react';
+import { Tenant } from '../types';
 
-interface Tenant {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  property: string;
-  unit: string;
-  leaseStart: string;
-  leaseEnd: string;
-  rent: number;
-  status: 'active' | 'pending' | 'expired';
-  avatar?: string;
-}
 
 interface TenantsViewProps {
   searchQuery: string;
   onAddTenant: () => void;
+  tenants: Tenant[];
 }
 
-const TenantsView: React.FC<TenantsViewProps> = ({ searchQuery, onAddTenant }) => {
-  const tenants: Tenant[] = [
-    {
-      id: '1',
-      name: 'Sarah Johnson',
-      email: 'sarah.johnson@email.com',
-      phone: '(555) 123-4567',
-      property: 'Sunset Apartments',
-      unit: '2A',
-      leaseStart: '2023-06-01',
-      leaseEnd: '2024-06-01',
-      rent: 1800,
-      status: 'active',
-    },
-    {
-      id: '2',
-      name: 'Michael Chen',
-      email: 'michael.chen@email.com',
-      phone: '(555) 987-6543',
-      property: 'Riverside House',
-      unit: '1',
-      leaseStart: '2023-08-15',
-      leaseEnd: '2024-08-15',
-      rent: 3200,
-      status: 'active',
-    },
-    {
-      id: '3',
-      name: 'Emma Rodriguez',
-      email: 'emma.rodriguez@email.com',
-      phone: '(555) 456-7890',
-      property: 'Garden View Townhouse',
-      unit: '3B',
-      leaseStart: '2023-12-01',
-      leaseEnd: '2024-12-01',
-      rent: 2400,
-      status: 'pending',
-    },
-    {
-      id: '4',
-      name: 'David Wilson',
-      email: 'david.wilson@email.com',
-      phone: '(555) 321-0987',
-      property: 'Downtown Loft',
-      unit: '5B',
-      leaseStart: '2022-09-01',
-      leaseEnd: '2023-09-01',
-      rent: 2200,
-      status: 'expired',
-    },
-  ];
+const TenantsView: React.FC<TenantsViewProps> = ({ searchQuery, onAddTenant, tenants }) => {
 
   const filteredTenants = tenants.filter(tenant =>
-    tenant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    `${tenant.firstName} ${tenant.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
     tenant.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    tenant.property.toLowerCase().includes(searchQuery.toLowerCase())
+    (tenant.unit || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const getStatusColor = (status: string) => {
@@ -103,12 +42,16 @@ const TenantsView: React.FC<TenantsViewProps> = ({ searchQuery, onAddTenant }) =
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-            <User className="w-6 h-6 text-blue-600" />
+          <div className="w-12 h-12 rounded-full overflow-hidden">
+            <img 
+              src={tenant.avatar} 
+              alt={`${tenant.firstName} ${tenant.lastName}`}
+              className="w-full h-full object-cover"
+            />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">{tenant.name}</h3>
-            <p className="text-sm text-gray-500">{tenant.property} - Unit {tenant.unit}</p>
+            <h3 className="text-lg font-semibold text-gray-900">{tenant.firstName} {tenant.lastName}</h3>
+            <p className="text-sm text-gray-500">Unit {tenant.unit}</p>
           </div>
         </div>
         <div className="flex items-center space-x-2">
@@ -132,11 +75,11 @@ const TenantsView: React.FC<TenantsViewProps> = ({ searchQuery, onAddTenant }) =
         </div>
         <div className="flex items-center space-x-3 text-sm text-gray-600">
           <Calendar className="w-4 h-4" />
-          <span>Lease: {formatDate(tenant.leaseStart)} - {formatDate(tenant.leaseEnd)}</span>
+          <span>Lease: {tenant.leaseStart ? formatDate(tenant.leaseStart) : 'N/A'} - {tenant.leaseEnd ? formatDate(tenant.leaseEnd) : 'N/A'}</span>
         </div>
         <div className="flex items-center space-x-3 text-sm">
           <DollarSign className="w-4 h-4 text-green-600" />
-          <span className="font-semibold text-green-600">${tenant.rent}/month</span>
+          <span className="font-semibold text-green-600">${tenant.rent || 0}/month</span>
         </div>
       </div>
 

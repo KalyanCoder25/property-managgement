@@ -1,80 +1,17 @@
 import React, { useState } from 'react';
 import { MapPin, Bed, Bath, Square, DollarSign, CreditCard as Edit, Eye, MoreVertical, Camera } from 'lucide-react';
+import { Property } from '../types';
 
-interface Property {
-  id: string;
-  name: string;
-  address: string;
-  type: string;
-  bedrooms: number;
-  bathrooms: number;
-  sqft: number;
-  rent: number;
-  status: 'available' | 'occupied' | 'maintenance';
-  tenant?: string;
-  image: string;
-}
 
 interface PropertiesViewProps {
   searchQuery: string;
   onAddProperty: () => void;
+  properties: Property[];
 }
 
-const PropertiesView: React.FC<PropertiesViewProps> = ({ searchQuery, onAddProperty }) => {
+const PropertiesView: React.FC<PropertiesViewProps> = ({ searchQuery, onAddProperty, properties }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   
-  const properties: Property[] = [
-    {
-      id: '1',
-      name: 'Sunset Apartments Unit 2A',
-      address: '123 Oak Street, Downtown',
-      type: 'Apartment',
-      bedrooms: 2,
-      bathrooms: 1,
-      sqft: 850,
-      rent: 1800,
-      status: 'occupied',
-      tenant: 'Sarah Johnson',
-      image: 'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=400',
-    },
-    {
-      id: '2',
-      name: 'Garden View Townhouse',
-      address: '456 Maple Drive, Suburbs',
-      type: 'Townhouse',
-      bedrooms: 3,
-      bathrooms: 2,
-      sqft: 1200,
-      rent: 2400,
-      status: 'available',
-      image: 'https://images.pexels.com/photos/1396132/pexels-photo-1396132.jpeg?auto=compress&cs=tinysrgb&w=400',
-    },
-    {
-      id: '3',
-      name: 'Downtown Loft 5B',
-      address: '789 Pine Avenue, City Center',
-      type: 'Loft',
-      bedrooms: 1,
-      bathrooms: 1,
-      sqft: 650,
-      rent: 2200,
-      status: 'maintenance',
-      image: 'https://images.pexels.com/photos/1396118/pexels-photo-1396118.jpeg?auto=compress&cs=tinysrgb&w=400',
-    },
-    {
-      id: '4',
-      name: 'Riverside House',
-      address: '321 River Road, Waterfront',
-      type: 'House',
-      bedrooms: 4,
-      bathrooms: 3,
-      sqft: 2000,
-      rent: 3200,
-      status: 'occupied',
-      tenant: 'Michael Chen',
-      image: 'https://images.pexels.com/photos/1396125/pexels-photo-1396125.jpeg?auto=compress&cs=tinysrgb&w=400',
-    },
-  ];
 
   const filteredProperties = properties.filter(property =>
     property.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -99,7 +36,7 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({ searchQuery, onAddPrope
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
       <div className="relative h-48">
         <img 
-          src={property.image} 
+          src={property.images[0]} 
           alt={property.name}
           className="w-full h-full object-cover"
         />
@@ -123,7 +60,7 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({ searchQuery, onAddPrope
         
         <div className="flex items-center text-gray-500 text-sm mb-3">
           <MapPin className="w-4 h-4 mr-1" />
-          <span className="line-clamp-1">{property.address}</span>
+          <span className="line-clamp-1">{property.address}, {property.city}</span>
         </div>
 
         <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
@@ -143,10 +80,10 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({ searchQuery, onAddPrope
           </div>
         </div>
 
-        {property.tenant && (
+        {property.tenantId && (
           <div className="text-sm text-gray-600 mb-4">
             <span className="font-medium">Tenant: </span>
-            <span>{property.tenant}</span>
+            <span>Assigned</span>
           </div>
         )}
 
